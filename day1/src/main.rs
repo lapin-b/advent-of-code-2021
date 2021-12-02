@@ -28,7 +28,7 @@ fn part1(lines: &[i32]){
             (Some(depth), nb_increased)
         });
 
-    println!("Nb of increasing depth: {:?}", nb_increased_readings);
+    println!("Nb of increasing depth: {}", nb_increased_readings);
 }
 
 fn part2(lines: &[i32]){
