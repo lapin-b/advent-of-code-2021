@@ -61,9 +61,7 @@ fn part1(lines: &[Direction]){
     let (horizontal, depth) = lines
         .iter()
         .fold((0, 0), |(cur_hor, cur_depth), direction|{
-            let direction = *direction;
-
-            match direction {
+            match *direction {
                 Direction::Forward(movement) => (cur_hor + movement, cur_depth),
                 Direction::Up(movement) => (cur_hor, cur_depth - movement),
                 Direction::Down(movement) => (cur_hor, cur_depth + movement)
