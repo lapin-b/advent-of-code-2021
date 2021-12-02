@@ -3,7 +3,7 @@ use std::io::{BufRead, BufReader};
 use std::str::FromStr;
 
 fn main() {
-    let file = BufReader::new(File::open("day1/src/files/input1.txt").unwrap());
+    let file = BufReader::new(File::open("files/day1/input1.txt").unwrap());
     let lines = file
         .lines()
         .map(Result::unwrap)
