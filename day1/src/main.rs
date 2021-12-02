@@ -4,7 +4,7 @@ use std::io::{BufRead, BufReader};
 use std::str::FromStr;
 
 fn main() {
-    let input_filename = args().skip(1).next().expect("USAGE: day1 <input file>");
+    let input_filename = args().nth(1).expect("USAGE: day1 <input file>");
     let file = File::open(&input_filename).unwrap_or_else(|_| panic!("Can't open file {}", input_filename));
     let file = BufReader::new(file);
 
