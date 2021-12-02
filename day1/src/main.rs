@@ -16,21 +16,19 @@ fn main() {
 }
 
 fn part1(lines: &[i32]){
-    let nb_of_increased_reading = lines
+    let (_, nb_increased_readings) = lines
         .iter()
-        .fold((None, 0), |prev, depth|{
-            let (previous_depth, mut nb_increased) = prev;
-
+        .fold((None, 0), |(previous_depth, nb_increased), depth|{
             if let Some(prev_depth) = previous_depth {
                 if depth > prev_depth {
-                    nb_increased += 1;
+                    return (Some(depth), nb_increased + 1);
                 }
             }
 
             (Some(depth), nb_increased)
-        }).1;
+        });
 
-    println!("Nb of increasing depth: {:?}", nb_of_increased_reading);
+    println!("Nb of increasing depth: {:?}", nb_increased_readings);
 }
 
 fn part2(lines: &[i32]){
