@@ -1,3 +1,4 @@
+use std::env::args;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::num::ParseIntError;
@@ -46,7 +47,10 @@ impl FromStr for Direction {
 }
 
 fn main(){
-    let file = BufReader::new(File::open("files/day2/input.txt").unwrap());
+    let input_filename = args().skip(1).next().expect("USAGE: day2 <input file>");
+    let file = File::open(&input_filename).unwrap_or_else(|_| panic!("Can't open file {}", input_filename));
+    let file = BufReader::new(file);
+
     let lines = file.lines()
         .map(Result::unwrap)
         .map(|line| Direction::from_str(&line))
