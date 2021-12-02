@@ -54,6 +54,7 @@ fn main(){
         .collect::<Vec<Direction>>();
 
     part1(&lines);
+    part2(&lines);
 }
 
 // Part 1: calculate horizontal and vertical movement
@@ -69,4 +70,19 @@ fn part1(lines: &[Direction]){
         });
 
     println!("Part 1: Horizontal: {}, Depth: {}, Result: {}", horizontal, depth, horizontal * depth);
+}
+
+// Part 2: calculate aim in addition of vertical and horizontal movement
+fn part2(lines: &[Direction]){
+    let (horizontal, depth, aim) = lines
+        .iter()
+        .fold((0, 0, 0), |(cur_hor, cur_depth, cur_aim), direction| {
+            match *direction {
+                Direction::Forward(movement) => (cur_hor + movement, cur_depth + movement * cur_aim, cur_aim),
+                Direction::Up(movement) => (cur_hor, cur_depth, cur_aim - movement),
+                Direction::Down(movement) => (cur_hor, cur_depth, cur_aim + movement),
+            }
+        });
+
+    println!("Part 2: Horizontal: {}, Depth: {}, Aim: {} Result: {}", horizontal, depth, aim, horizontal * depth);
 }
