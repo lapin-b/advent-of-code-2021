@@ -45,7 +45,6 @@ impl FromStr for Direction {
     }
 }
 
-// Part 1: calculate horizontal and vertical movement
 fn main(){
     let file = BufReader::new(File::open("files/day2/input.txt").unwrap());
     let lines = file.lines()
@@ -54,7 +53,12 @@ fn main(){
         .map(Result::unwrap)
         .collect::<Vec<Direction>>();
 
-    let (horizontal, depth, aim) = lines
+    part1(&lines);
+}
+
+// Part 1: calculate horizontal and vertical movement
+fn part1(lines: &[Direction]){
+    let (horizontal, depth) = lines
         .iter()
         .fold((0, 0), |acc, direction|{
             let direction = *direction;
@@ -66,5 +70,5 @@ fn main(){
             }
         });
 
-    println!("Horizontal: {}, Depth: {}, Result: {}", horizontal, depth, horizontal * depth);
+    println!("Part 1: Horizontal: {}, Depth: {}, Result: {}", horizontal, depth, horizontal * depth);
 }
