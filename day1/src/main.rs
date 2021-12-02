@@ -3,17 +3,21 @@ use std::io::{BufRead, BufReader};
 use std::str::FromStr;
 
 fn main() {
-    part1();
-    part2();
-}
-
-fn part1(){
     let file = BufReader::new(File::open("day1/src/files/input1.txt").unwrap());
-
-    let nb_of_increased_reading = file
+    let lines = file
         .lines()
         .map(Result::unwrap)
-        .map(|line| i32::from_str(&line).unwrap())
+        .map(|l| i32::from_str(&l))
+        .map(Result::unwrap)
+        .collect::<Vec<i32>>();
+
+    part1(&lines);
+    part2(&lines);
+}
+
+fn part1(lines: &[i32]){
+    let nb_of_increased_reading = lines
+        .iter()
         .fold((None, 0), |prev, depth|{
             let (previous_depth, mut nb_increased) = prev;
 
@@ -29,14 +33,7 @@ fn part1(){
     println!("Nb of increasing depth: {:?}", nb_of_increased_reading);
 }
 
-fn part2(){
-    let file = BufReader::new(File::open("day1/src/files/input1.txt").unwrap());
-    let lines = file.lines()
-        .map(Result::unwrap)
-        .map(|l| i32::from_str(&l))
-        .map(Result::unwrap)
-        .collect::<Vec<i32>>();
-
+fn part2(lines: &[i32]){
     let mut previous_sum = None;
     let mut increase_count = 0;
 
