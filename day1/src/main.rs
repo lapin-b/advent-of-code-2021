@@ -34,31 +34,21 @@ fn part1(lines: &[i32]){
 }
 
 fn part2(lines: &[i32]){
-    let mut previous_sum = None;
-    let mut increase_count = 0;
+    let (_, nb_increased_readings) = lines.iter()
+        .zip(lines.iter().skip(1))
+        .zip(lines.iter().skip(2))
+        .map(|((a, b), c)| (*a, *b, *c))
+        .fold((None, 0), |(prev_sum, nb_increased), (line, follow1, follow2)| {
+            let current_sum = line + follow1 + follow2;
 
-    for (i, line) in lines.iter().enumerate() {
-        let line = *line;
-        let line_follow_1 = lines.get(i + 1).copied();
-        let line_follow_2 = lines.get(i + 2).copied();
-
-        if line_follow_1.is_none() || line_follow_2.is_none(){
-            break;
-        }
-
-        let line_follow_1 = line_follow_1.unwrap();
-        let line_follow_2 = line_follow_2.unwrap();
-
-        let sum = line + line_follow_1 + line_follow_2;
-
-        if let Some(prev_sum) = previous_sum {
-            if sum > prev_sum {
-                increase_count += 1;
+            if let Some(prev_sum) = prev_sum {
+                if current_sum > prev_sum {
+                    return (Some(current_sum), nb_increased + 1);
+                }
             }
-        }
 
-        previous_sum = Some(sum);
-    }
+            (Some(current_sum), nb_increased)
+        });
 
-    println!("Increase counts with window of 3: {}", increase_count);
+    println!("Increase counts with window of 3: {}", nb_increased_readings);
 }
