@@ -3,6 +3,8 @@ use std::env::args;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
+type CountOnesAndZeroesClosure = dyn FnMut((i32, i32), &Vec<String>) -> (i32, i32);
+
 fn main() {
     let input_filename = args().nth(1).expect("USAGE: day3 <input file>");
     let file = File::open(&input_filename).unwrap_or_else(|_| panic!("Can't open file {}", input_filename));
@@ -101,7 +103,7 @@ fn bit_criteria_filtering<F>(lines: &[Vec<String>], comparison_function: F) -> i
     i32::from_str_radix(&lines[0].join(""), 2).unwrap()
 }
 
-fn count_ones_and_zeroes(column: usize) -> Box<dyn FnMut((i32, i32), &Vec<String>) -> (i32, i32)> {
+fn count_ones_and_zeroes(column: usize) -> Box<CountOnesAndZeroesClosure> {
     Box::new(move |(one_count, zero_count), bits| {
         let bit = bits[column].as_str();
         match bit {
