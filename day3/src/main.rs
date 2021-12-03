@@ -19,9 +19,10 @@ fn main() {
         .collect::<Vec<_>>();
 
     part1(&lines);
+    part2(&lines);
 }
 
-fn part1(lines: &[Vec<String>]){
+fn part1(lines: &[Vec<String>]) {
     let columns_count = lines[0].len();
     let mut gamma_number = 0u32;
     let mut epsilon_number = 0u32;
@@ -45,8 +46,67 @@ fn part1(lines: &[Vec<String>]){
     println!("Gamma number: {}, Epsilon number: {}, Power consumption rate: {}", gamma_number, epsilon_number, gamma_number * epsilon_number);
 }
 
+fn part2(lines: &[Vec<String>]) {
+    // Since we're going to mutate the vector, clone them
+    let mut o2_generator_rating = lines.to_vec();
+    let mut co2_scrubber_rating = lines.to_vec();
+
+    let mut current_column = 0;
+    while o2_generator_rating.len() > 1 {
+        let (one_count, zero_count) = o2_generator_rating
+            .iter()
+            .fold((0, 0), count_ones_and_zeroes(current_column));
+
+
+        let keep = if one_count > zero_count { // Keep the bit with the most common value
+            "1"
+        } else if zero_count > one_count {
+            "0"
+        } else {
+            "1"
+        };
+
+        o2_generator_rating = o2_generator_rating
+            .iter()
+            .filter(|line| line[current_column] == keep)
+            .cloned()
+            .collect::<Vec<_>>();
+
+        current_column += 1;
+    }
+
+    let mut current_column = 0;
+    while co2_scrubber_rating.len() > 1 {
+        let (one_count, zero_count) = co2_scrubber_rating
+            .iter()
+            .fold((0, 0), count_ones_and_zeroes(current_column));
+
+
+        let keep = if one_count < zero_count { // Keep the bit with the most common value
+            "1"
+        } else if zero_count < one_count {
+            "0"
+        } else {
+            "0"
+        };
+
+        co2_scrubber_rating = co2_scrubber_rating
+            .iter()
+            .filter(|line| line[current_column] == keep)
+            .cloned()
+            .collect::<Vec<_>>();
+
+        current_column += 1;
+    }
+
+    let o2_generator_rating = i32::from_str_radix(&o2_generator_rating[0].join(""), 2).unwrap();
+    let co2_scrubber_rating = i32::from_str_radix(&co2_scrubber_rating[0].join(""), 2).unwrap();
+
+    println!("O2 rating: {}, CO2 rating: {}, Life support rating: {}", o2_generator_rating, co2_scrubber_rating, o2_generator_rating * co2_scrubber_rating);
+}
+
 fn count_ones_and_zeroes(column: usize) -> Box<dyn FnMut((i32, i32), &Vec<String>) -> (i32, i32)> {
-    Box::new(move |(one_count, zero_count), bits|{
+    Box::new(move |(one_count, zero_count), bits| {
         let bit = bits[column].as_str();
         match bit {
             "0" => (one_count, zero_count + 1),
