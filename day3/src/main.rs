@@ -47,62 +47,61 @@ fn part1(lines: &[Vec<String>]) {
 }
 
 fn part2(lines: &[Vec<String>]) {
-    // Since we're going to mutate the vector, clone them
-    let mut o2_generator_rating = lines.to_vec();
-    let mut co2_scrubber_rating = lines.to_vec();
+    let o2_generator_rating = bit_criteria_filtering(
+        lines,
+        |one_count, zero_count| {
+            if one_count > zero_count {
+                "1"
+            } else if zero_count > one_count {
+                "0"
+            } else {
+                "1"
+            }
+        }
+    );
 
-    let mut current_column = 0;
-    while o2_generator_rating.len() > 1 {
-        let (one_count, zero_count) = o2_generator_rating
-            .iter()
-            .fold((0, 0), count_ones_and_zeroes(current_column));
-
-
-        let keep = if one_count > zero_count { // Keep the bit with the most common value
-            "1"
-        } else if zero_count > one_count {
-            "0"
-        } else {
-            "1"
-        };
-
-        o2_generator_rating = o2_generator_rating
-            .iter()
-            .filter(|line| line[current_column] == keep)
-            .cloned()
-            .collect::<Vec<_>>();
-
-        current_column += 1;
-    }
-
-    let mut current_column = 0;
-    while co2_scrubber_rating.len() > 1 {
-        let (one_count, zero_count) = co2_scrubber_rating
-            .iter()
-            .fold((0, 0), count_ones_and_zeroes(current_column));
-
-
-        let keep = if one_count < zero_count { // Keep the bit with the most common value
-            "1"
-        } else if zero_count < one_count {
-            "0"
-        } else {
-            "0"
-        };
-
-        co2_scrubber_rating = co2_scrubber_rating
-            .iter()
-            .filter(|line| line[current_column] == keep)
-            .cloned()
-            .collect::<Vec<_>>();
-
-        current_column += 1;
-    }
-
-    let o2_generator_rating = i32::from_str_radix(&o2_generator_rating[0].join(""), 2).unwrap();
-    let co2_scrubber_rating = i32::from_str_radix(&co2_scrubber_rating[0].join(""), 2).unwrap();
+    let co2_scrubber_rating = bit_criteria_filtering(
+        lines,
+        |one_count, zero_count| {
+            if one_count < zero_count {
+                "1"
+            } else if zero_count < one_count {
+                "0"
+            } else {
+                "0"
+            }
+        }
+    );
 
     println!("O2 rating: {}, CO2 rating: {}, Life support rating: {}", o2_generator_rating, co2_scrubber_rating, o2_generator_rating * co2_scrubber_rating);
+}
+
+// Naming is hard
+fn bit_criteria_filtering<F>(lines: &[Vec<String>], comparison_function: F) -> i32
+    where F: Fn(i32, i32) -> &'static str
+{
+    let mut lines = lines.iter().collect::<Vec<_>>();
+
+    let mut current_column = 0;
+    while lines.len() > 1 {
+        let (one_count, zero_count) = lines
+            .iter()
+            .map(|v| *v)
+            .fold((0, 0), count_ones_and_zeroes(current_column));
+
+
+        let keep = comparison_function(one_count, zero_count);
+
+        lines = lines
+            .iter()
+            .filter(|line| line[current_column] == keep)
+            .map(|v| *v)
+            .collect::<Vec<_>>();
+
+        current_column += 1;
+    }
+
+    i32::from_str_radix(&lines[0].join(""), 2).unwrap()
 }
 
 fn count_ones_and_zeroes(column: usize) -> Box<dyn FnMut((i32, i32), &Vec<String>) -> (i32, i32)> {
