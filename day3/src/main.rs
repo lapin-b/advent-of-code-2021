@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::env::args;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -50,12 +51,10 @@ fn part2(lines: &[Vec<String>]) {
     let o2_generator_rating = bit_criteria_filtering(
         lines,
         |one_count, zero_count| {
-            if one_count > zero_count {
-                "1"
-            } else if zero_count > one_count {
-                "0"
-            } else {
-                "1"
+            match one_count.cmp(&zero_count) {
+                Ordering::Less => "0",
+                Ordering::Equal => "1",
+                Ordering::Greater => "1"
             }
         }
     );
@@ -63,12 +62,10 @@ fn part2(lines: &[Vec<String>]) {
     let co2_scrubber_rating = bit_criteria_filtering(
         lines,
         |one_count, zero_count| {
-            if one_count < zero_count {
-                "1"
-            } else if zero_count < one_count {
-                "0"
-            } else {
-                "0"
+            match one_count.cmp(&zero_count) {
+                Ordering::Less => "1",
+                Ordering::Equal => "0",
+                Ordering::Greater => "0"
             }
         }
     );
