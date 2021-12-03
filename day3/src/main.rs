@@ -22,8 +22,8 @@ fn part1(lines: &[String]){
         .collect::<Vec<_>>();
 
     let columns_count = prepared_lines[0].len();
-    let mut gamma_number = String::with_capacity(columns_count);
-    let mut epsilon_number = String::with_capacity(columns_count);
+    let mut gamma_number = 0u32;
+    let mut epsilon_number = 0u32;
 
     for column in 0..columns_count {
         let mut one_count = 0;
@@ -41,16 +41,13 @@ fn part1(lines: &[String]){
         // Gamma rate: most common bit makes its way into the number
         // Epsilon rate: least common bit makes its way into the number
         if one_count > zero_count {
-            gamma_number += "1";
-            epsilon_number += "0";
+            gamma_number = (gamma_number << 1) | 1;
+            epsilon_number = epsilon_number << 1;
         } else {
-            gamma_number += "0";
-            epsilon_number += "1";
+            gamma_number = gamma_number << 1;
+            epsilon_number = (epsilon_number << 1) | 1;
         }
     }
-
-    let gamma_number = u32::from_str_radix(&gamma_number, 2).unwrap();
-    let epsilon_number = u32::from_str_radix(&epsilon_number, 2).unwrap();
 
     println!("Gamma number: {}, Epsilon number: {}, Power consumption rate: {}", gamma_number, epsilon_number, gamma_number * epsilon_number);
 }
