@@ -36,9 +36,9 @@ fn part1(lines: &[Vec<String>]) {
         // Epsilon rate: least common bit makes its way into the number
         if one_count > zero_count {
             gamma_number = (gamma_number << 1) | 1;
-            epsilon_number = epsilon_number << 1;
+            epsilon_number <<= 1;
         } else {
-            gamma_number = gamma_number << 1;
+            gamma_number <<= 1;
             epsilon_number = (epsilon_number << 1) | 1;
         }
     }
@@ -86,7 +86,7 @@ fn bit_criteria_filtering<F>(lines: &[Vec<String>], comparison_function: F) -> i
     while lines.len() > 1 {
         let (one_count, zero_count) = lines
             .iter()
-            .map(|v| *v)
+            .copied()
             .fold((0, 0), count_ones_and_zeroes(current_column));
 
 
@@ -95,7 +95,7 @@ fn bit_criteria_filtering<F>(lines: &[Vec<String>], comparison_function: F) -> i
         lines = lines
             .iter()
             .filter(|line| line[current_column] == keep)
-            .map(|v| *v)
+            .copied()
             .collect::<Vec<_>>();
 
         current_column += 1;
