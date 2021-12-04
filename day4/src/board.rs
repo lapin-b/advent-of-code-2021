@@ -47,19 +47,17 @@ impl Board {
     }
 
     pub fn mark(&mut self, number_to_mark: u32) {
-        let element = self.numbers
+        self.numbers = self.numbers
             .iter()
-            .enumerate()
-            .find(
-                |(_idx, number)| match **number {
-                    None => false,
-                    Some(n) => n == number_to_mark
+            .copied()
+            .map(|grid_number| {
+                match grid_number {
+                    None => None,
+                    Some(number) if number == number_to_mark => None,
+                    Some(number) => Some(number)
                 }
-            );
-
-        if let Some((idx, _)) = element {
-            self.numbers[idx] = None;
-        }
+            })
+            .collect()
     }
 
     pub fn is_win(&self) -> bool {
