@@ -1,3 +1,4 @@
+use std::borrow::BorrowMut;
 use std::env::args;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -52,6 +53,7 @@ fn main() {
     };
 
     part1(&numbers, &boards);
+    part2(&numbers, &boards);
 }
 
 fn part1(numbers: &[u32], grids: &[Board]) {
@@ -84,4 +86,46 @@ fn part1(numbers: &[u32], grids: &[Board]) {
     } else {
         println!("No winning grid :(")
     }
+}
+
+fn part2(numbers: &[u32], grids: &[Board]) {
+    let mut grids = grids.to_vec();
+
+    for number in numbers {
+        let number = *number;
+
+        for grid in grids.iter_mut() {
+            grid.mark(number)
+        }
+
+        let winning_grids_count = grids
+            .iter()
+            .filter(|grid| grid.is_win())
+            .count();
+
+        if winning_grids_count ==  grids.len() - 1 {
+            break;
+        }
+    }
+
+    let mut non_winning_grid = grids.iter()
+        .filter(|grid| !grid.is_win())
+        .collect::<Vec<_>>();
+
+    let mut non_winning_grid = (*non_winning_grid.get(0).unwrap()).clone();
+
+    // Play the numbers until the grid is won
+    let mut last_called = None;
+    for number in numbers {
+        non_winning_grid.mark(*number);
+        last_called = Some(*number);
+
+        if non_winning_grid.is_win() {
+            break;
+        }
+    }
+
+    let score = non_winning_grid.calculate_score();
+    let last_called = last_called.expect("How do we win if we haven't called any number ?");
+    println!("Last winning grid with score of {}, last called number {}, final score: {}", score, last_called, last_called * score);
 }
