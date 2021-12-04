@@ -25,7 +25,7 @@ fn main() {
     // Extract the random numbers
     let numbers = board_file_content
         .remove(0)
-        .split(",")
+        .split(',')
         .filter(|n| !n.is_empty())
         .map(u32::from_str)
         .map(Result::unwrap)
@@ -38,7 +38,7 @@ fn main() {
         for board in board_file_content.chunks(LINE_COUNT_PER_GRID) {
             let board = board
                 .iter()
-                .map(|s| s.split(" "))
+                .map(|s| s.split(' '))
                 .flatten()
                 .filter(|n| !n.is_empty())
                 .map(u32::from_str)

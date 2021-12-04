@@ -65,31 +65,31 @@ impl Board {
     pub fn is_win(&self) -> bool {
 
         for line in self.lines() {
-            if line == &[None; COLUMN_COUNT_PER_GRID] {
+            if line == [None; COLUMN_COUNT_PER_GRID] {
                 return true;
             }
         }
 
         for column in self.columns() {
             let column = column.as_slice();
-            if column == &[None; LINE_COUNT_PER_GRID] {
+            if column == [None; LINE_COUNT_PER_GRID] {
                 return true;
             }
         }
 
-        return false;
+        false
     }
 
     pub fn lines(&self) -> BoardLineIterator {
         BoardLineIterator {
-            board: &self,
+            board: self,
             current_line: 0
         }
     }
 
     pub fn columns(&self) -> BoardColumnIterator {
         BoardColumnIterator {
-            board: &self,
+            board: self,
             current_column: 0
         }
     }
@@ -137,6 +137,6 @@ impl Board {
             column.push(*number_at_that_line);
         }
 
-        return Some(column);
+        Some(column)
     }
 }
