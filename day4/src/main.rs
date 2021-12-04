@@ -10,7 +10,7 @@ mod board;
 
 fn main() {
     // Read the file and parse the contents of it so we can extract the numbers and the boards
-    let filename = args().nth(1).unwrap();
+    let filename = args().nth(1).expect("USAGE: day4 <input file>");
     let file = File::open(&filename).expect("File does not exist");
     let file = BufReader::new(file);
 
