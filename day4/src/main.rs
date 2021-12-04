@@ -1,4 +1,3 @@
-use std::borrow::BorrowMut;
 use std::env::args;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -108,11 +107,7 @@ fn part2(numbers: &[u32], grids: &[Board]) {
         }
     }
 
-    let mut non_winning_grid = grids.iter()
-        .filter(|grid| !grid.is_win())
-        .collect::<Vec<_>>();
-
-    let mut non_winning_grid = (*non_winning_grid.get(0).unwrap()).clone();
+    let non_winning_grid = grids.iter_mut().find(|g| !g.is_win()).unwrap();
 
     // Play the numbers until the grid is won
     let mut last_called = None;
