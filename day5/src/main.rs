@@ -1,4 +1,4 @@
-use std::cmp::max;
+use std::cmp::{max, Ordering};
 use std::env::args;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -31,11 +31,50 @@ impl Point {
     }
 }
 
+impl PartialOrd for Point {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self.x == other.x && self.y == other.y {
+            return Some(Ordering::Equal);
+        }
+
+        if self.x < other.x {
+            return if self.y < other.y {
+                Some(Ordering::Less)
+            } else {
+                Some(Ordering::Greater)
+            }
+        }
+
+        if self.y < other.y {
+            return if self.x < other.x {
+                Some(Ordering::Less)
+            } else {
+                Some(Ordering::Greater)
+            }
+        }
+
+        None
+    }
+}
+
+impl PartialEq<Self> for Point {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
+    }
+}
+
 impl Line {
     pub fn from_slice(points: &[Point]) -> Self {
+        let mut p1 = points[0];
+        let mut p2 = points[1];
+
+        if p2 > p1 {
+            std::mem::swap(&mut p1, &mut p2);
+        }
+
         Self {
-            start: points[0],
-            end: points[1],
+            start: p1,
+            end: p2,
         }
     }
 
@@ -100,6 +139,30 @@ fn part1(vents: &[Line]) {
     }
 
     println!("Intersections: {}", intersections);
+}
+
+fn _print_map(vents: &[Line]) {
+    let max_x = vents.iter().map(|l| max(l.start.x, l.end.x)).max().unwrap();
+    let max_y = vents.iter().map(|l| max(l.start.y, l.end.y)).max().unwrap();
+
+    for y in 0..=max_y {
+        for x in 0..max_x {
+            let point = Point { x, y };
+            let crossings = vents
+                .iter()
+                .filter(|l| l.has_point_in_line(point))
+                .count();
+
+            let dot = match crossings {
+                0 => ".".to_string(),
+                _ => format!("{}", crossings)
+            };
+
+            print!("{} ", dot);
+        }
+
+        println!()
+    }
 }
 
 #[cfg(test)]
