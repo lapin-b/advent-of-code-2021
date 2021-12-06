@@ -1,39 +1,36 @@
 use std::env::args;
 use std::str::FromStr;
 
-const PART1_ITERATION_COUNT: u32 = 80;
+const ITERATION_COUNT: u32 = 256;
+const GROWTH_STATE_COUNT: usize = 9; // 0 to 8 incl.
+const AFTER_NEW_FISH_PLACE: usize = 6; // Stage number
 
 fn main() {
     let filename = args().nth(1).expect("USAGE: day6 <input file>");
     let content = std::fs::read_to_string(filename).unwrap();
 
-    let lanternfish_school = content.split(',')
-        .map(|fish| u8::from_str(fish))
+    let lanternfish_array = content.split(',')
+        .map(|fish| usize::from_str(fish))
         .map(Result::unwrap)
-        .collect::<Vec<_>>();
+        .collect::<Vec<usize>>();
 
-    lantern_fish_simulation(&lanternfish_school, PART1_ITERATION_COUNT);
-}
+    let mut lanternfish_groups: Vec<u64> = Vec::with_capacity(GROWTH_STATE_COUNT);
+    lanternfish_groups.resize(GROWTH_STATE_COUNT, 0);
 
-fn lantern_fish_simulation(lanternfishes: &[u8], iterations_count: u32){
-    let mut lanternfishes = lanternfishes.to_vec();
-
-    println!("Initial state: {:?}", lanternfishes);
-
-    for _iteration in 1..=iterations_count {
-        let mut fishes_to_add = 0;
-
-        lanternfishes = lanternfishes
-            .iter()
-            .map(|fish_timer| if *fish_timer == 0 { fishes_to_add += 1; 6 } else { fish_timer - 1 } )
-            .collect::<Vec<u8>>();
-
-        for _ in 0..fishes_to_add {
-            lanternfishes.push(8)
-        }
-
-        //println!("End of iteration {}: {:?}", iteration, lanternfishes);
+    for lanternfish_timer in &lanternfish_array {
+        lanternfish_groups[*lanternfish_timer] += 1;
     }
 
-    println!("Fish count: {} after {} iterations", lanternfishes.len(), iterations_count);
+    // Now the simulation of the fishes
+    for iteration in 1..=ITERATION_COUNT {
+        // Add the fishes from stage zero into the latest stage possible
+        let stage_zero = lanternfish_groups.remove(0);
+        lanternfish_groups.push(stage_zero);
+
+        // The fishes we have taken from stage zero by poping the vector still exist !
+        lanternfish_groups[AFTER_NEW_FISH_PLACE] += stage_zero;
+
+        let fishes_count = lanternfish_groups.iter().sum::<u64>();
+        println!("Iteration {}: groups: {:?}; count: {}", iteration, lanternfish_groups, fishes_count);
+    }
 }
