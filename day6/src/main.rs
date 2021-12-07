@@ -14,8 +14,7 @@ fn main() {
         .map(Result::unwrap)
         .collect::<Vec<usize>>();
 
-    let mut lanternfish_groups: Vec<u64> = Vec::with_capacity(GROWTH_STATE_COUNT);
-    lanternfish_groups.resize(GROWTH_STATE_COUNT, 0);
+    let mut lanternfish_groups: Vec<u64> = vec![0; GROWTH_STATE_COUNT];
 
     for lanternfish_timer in &lanternfish_array {
         lanternfish_groups[*lanternfish_timer] += 1;

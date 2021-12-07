@@ -87,9 +87,8 @@ impl Line {
         // are in the range. For line (0; 0) -> (0; 10), the point (0; 5) is in the line while (0; 11) is not,
         // nor is (1; 5).
 
-        return
-            (point.y == self.start.y && point.y == self.end.y && point.x >= self.start.x && point.x <= self.end.x) ||
-                (point.x == self.start.x && point.x == self.end.x && point.y >= self.start.y && point.y <= self.end.y);
+        (point.y == self.start.y && point.y == self.end.y && point.x >= self.start.x && point.x <= self.end.x) ||
+            (point.x == self.start.x && point.x == self.end.x && point.y >= self.start.y && point.y <= self.end.y)
     }
 }
 
