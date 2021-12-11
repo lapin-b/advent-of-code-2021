@@ -1,6 +1,6 @@
 use std::env::args;
+use std::fmt::{Display, Formatter};
 use std::fs;
-use std::io::BufReader;
 
 const ILLEGAL_PARENTHESIS_SCORE: u32 = 3;
 const ILLEGAL_SQUARE_BRACKET_SCORE: u32 = 57;
@@ -18,6 +18,11 @@ struct SyntaxViolationsContainer {
     pub square_bracket: u32,
     pub curly_bracket: u32,
     pub parenthesis: u32,
+}
+
+struct LineChecker<'line> {
+    line: &'line str,
+    stack: Vec<char>
 }
 
 impl SyntaxViolationsContainer {
@@ -41,63 +46,77 @@ impl SyntaxViolationsContainer {
     }
 }
 
-fn get_closing_symbol(symbol: char) -> Option<char> {
-    match symbol {
-        '<' => Some('>'),
-        '[' => Some(']'),
-        '{' => Some('}'),
-        '(' => Some(')'),
-        _ => None
-    }
-}
-
-fn check_line(line: &str) -> Result<(), SyntaxError> {
-    let mut stack = Vec::new();
-
-    for (idx, symbol) in line.chars().enumerate() {
-        let is_opening = match symbol {
-            '<' | '[' | '{' | '(' => true,
-            '>' | ']' | '}' | ')' => false,
-            _ => unreachable!("Unknown symbol {} in col {}", symbol, idx),
-        };
-
-        if is_opening {
-            stack.push(symbol);
-        } else {
-            let opening_symbol = stack.pop().expect("Unexpected empty stack");
-            let expected_closing_symbol = get_closing_symbol(opening_symbol).unwrap();
-
-            if symbol != expected_closing_symbol {
-                return Err(SyntaxError::UnexpectedClosingChar { expected: expected_closing_symbol, got: symbol })
-            }
+impl<'line> LineChecker<'line> {
+    pub fn new(line: &'line str) -> Self {
+        Self {
+            line,
+            stack: Vec::new()
         }
     }
 
-    if stack.len() > 0 {
-        return Err(SyntaxError::IncompleteLine);
+    pub fn check(&mut self) -> Result<(), SyntaxError> {
+        for (idx, symbol) in self.line.chars().enumerate() {
+            let is_opening = match symbol {
+                '<' | '[' | '{' | '(' => true,
+                '>' | ']' | '}' | ')' => false,
+                _ => unreachable!("Unknown symbol {} in col {}", symbol, idx),
+            };
+
+            if is_opening {
+                self.stack.push(symbol);
+            } else {
+                let opening_symbol = self.stack.pop().expect("Unexpected empty stack");
+                let expected_closing_symbol = Self::closing_symbol_for(opening_symbol).unwrap();
+
+                if symbol != expected_closing_symbol {
+                    return Err(SyntaxError::UnexpectedClosingChar { expected: expected_closing_symbol, got: symbol })
+                }
+            }
+        }
+
+        if self.stack.len() > 0 {
+            return Err(SyntaxError::IncompleteLine);
+        }
+
+        Ok(())
     }
 
-    Ok(())
+    pub fn closing_symbol_for(symbol: char) -> Option<char> {
+        match symbol {
+            '<' => Some('>'),
+            '[' => Some(']'),
+            '{' => Some('}'),
+            '(' => Some(')'),
+            _ => None
+        }
+    }
+}
+
+impl<'line> Display for LineChecker<'line> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        self.line.fmt(f)
+    }
 }
 
 fn main() {
     let filename = args().nth(1).expect("USAGE: day8 <input file>");
     let content = fs::read_to_string(filename).unwrap();
-    let lines = content
+    let mut lines = content
         .lines()
+        .map(LineChecker::new)
         .collect::<Vec<_>>();
 
 
-    part1(&lines);
+    part1(&mut lines);
 }
 
-fn part1(lines: &[&str]) {
+fn part1(lines: &mut [LineChecker]) {
     let mut syntax_error_symbols = SyntaxViolationsContainer::new();
 
     for line in lines {
         print!("{} -> ", line);
 
-        match check_line(*line) {
+        match line.check() {
             Ok(_) => {
                 println!("OK");
                 true
