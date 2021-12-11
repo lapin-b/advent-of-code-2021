@@ -8,8 +8,8 @@ const ILLEGAL_CURLY_BRACKET_SCORE: u32 = 1197;
 const ILLEGAL_ANGLE_BRACKET_SCORE: u32 = 25137;
 
 enum SyntaxError {
-    IncompleteLine,
-    UnexpectedClosingChar { expected: char, got: char }
+    IncompleteLine { stack: Vec<char> },
+    UnexpectedClosingChar { expected: char, got: char, stack: Vec<char> }
 }
 
 #[derive(Debug)]
@@ -22,7 +22,6 @@ struct SyntaxViolationsContainer {
 
 struct LineChecker<'line> {
     line: &'line str,
-    stack: Vec<char>
 }
 
 impl SyntaxViolationsContainer {
@@ -50,11 +49,12 @@ impl<'line> LineChecker<'line> {
     pub fn new(line: &'line str) -> Self {
         Self {
             line,
-            stack: Vec::new()
         }
     }
 
-    pub fn check(&mut self) -> Result<(), SyntaxError> {
+    pub fn check(&self) -> Result<Vec<char>, SyntaxError> {
+        let mut stack = Vec::new();
+
         for (idx, symbol) in self.line.chars().enumerate() {
             let is_opening = match symbol {
                 '<' | '[' | '{' | '(' => true,
@@ -63,22 +63,22 @@ impl<'line> LineChecker<'line> {
             };
 
             if is_opening {
-                self.stack.push(symbol);
+                stack.push(symbol);
             } else {
-                let opening_symbol = self.stack.pop().expect("Unexpected empty stack");
+                let opening_symbol = stack.pop().expect("Unexpected empty stack");
                 let expected_closing_symbol = Self::closing_symbol_for(opening_symbol).unwrap();
 
                 if symbol != expected_closing_symbol {
-                    return Err(SyntaxError::UnexpectedClosingChar { expected: expected_closing_symbol, got: symbol })
+                    return Err(SyntaxError::UnexpectedClosingChar { expected: expected_closing_symbol, got: symbol, stack })
                 }
             }
         }
 
-        if self.stack.len() > 0 {
-            return Err(SyntaxError::IncompleteLine);
+        if !stack.is_empty() {
+            return Err(SyntaxError::IncompleteLine { stack });
         }
 
-        Ok(())
+        Ok(stack)
     }
 
     pub fn closing_symbol_for(symbol: char) -> Option<char> {
@@ -123,11 +123,11 @@ fn part1(lines: &mut [LineChecker]) {
             },
 
             Err(error) => match error {
-                SyntaxError::IncompleteLine => {
+                SyntaxError::IncompleteLine { .. } => {
                     println!("WARN: Incomplete line");
                     true
                 },
-                SyntaxError::UnexpectedClosingChar { expected, got } => {
+                SyntaxError::UnexpectedClosingChar { expected, got, .. } => {
                     println!("ERR: expected {}, got {}", expected, got);
                     syntax_error_symbols.increment(got);
                     false
