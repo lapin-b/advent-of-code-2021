@@ -63,7 +63,12 @@ fn main() {
     let file_content = fs::read_to_string(filename).expect("Files does not exist");
 
     let map = HeightMap::new(&file_content);
+    let low_points = part1(&map);
+}
+
+fn part1(map: &HeightMap) -> Vec<(usize, usize)> {
     let mut sum_risk_points = 0;
+    let mut low_points = Vec::new();
 
     for y in 0..map.lines_count {
         for x in 0..map.columns_count {
@@ -76,11 +81,13 @@ fn main() {
 
             if up_shallower && down_shallower && left_shallower && right_shallower {
                 sum_risk_points += current_depth + 1;
+                low_points.push((x, y));
             }
         }
     }
 
     println!("Sum of risk level of all low points on the map: {}", sum_risk_points);
+    low_points
 }
 
 #[cfg(test)]
