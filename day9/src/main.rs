@@ -1,9 +1,12 @@
 mod heightmap;
+mod bassin;
 
 use std::env::args;
 use std::fs;
+use std::ops::Mul;
 
 use heightmap::HeightMap;
+use crate::bassin::Bassin;
 
 fn main() {
     let filename = args().nth(1).expect("USAGE: day9 <input file>");
@@ -11,6 +14,7 @@ fn main() {
 
     let map = HeightMap::new(&file_content);
     let low_points = part1(&map);
+    part2(&low_points, &map);
 }
 
 fn part1(map: &HeightMap) -> Vec<(usize, usize)> {
@@ -35,4 +39,24 @@ fn part1(map: &HeightMap) -> Vec<(usize, usize)> {
 
     println!("Sum of risk level of all low points on the map: {}", sum_risk_points);
     low_points
+}
+
+fn part2(low_points: &[(usize, usize)], map: &HeightMap) {
+    let mut bassins = low_points
+        .iter()
+        .map(|low_point| Bassin::new(map, *low_point))
+        .collect::<Vec<_>>();
+
+    for bassin in bassins.iter_mut() {
+        bassin.discover_terrain();
+    }
+
+    let mut largest_sizes = bassins.iter()
+        .map(|bassin| bassin.terrain_size())
+        .collect::<Vec<_>>();
+
+    largest_sizes.sort_by(|a, b| b.cmp(a));
+
+    let largest_sizes_score = largest_sizes.iter().take(3).fold(1, |acc, cur| acc.mul(*cur));
+    println!("Largest three bassins score: {}", largest_sizes_score);
 }
